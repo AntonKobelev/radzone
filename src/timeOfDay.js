@@ -1,3 +1,5 @@
+import React from "react";
+
 const TimeOfDay = ({ onSetTimeOfDay }) => {
   return (
     <div className="selector">
@@ -15,4 +17,4 @@ const TimeOfDay = ({ onSetTimeOfDay }) => {
   );
 };
 
-export default TimeOfDay;
+export default React.memo(TimeOfDay);

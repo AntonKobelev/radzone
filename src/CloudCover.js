@@ -1,3 +1,5 @@
+import React from "react";
+
 const CloudCover = ({ onSetCloudCover }) => {
   return (
     <div className="selector">
@@ -14,4 +16,4 @@ const CloudCover = ({ onSetCloudCover }) => {
   );
 };
 
-export default CloudCover;
+export default React.memo(CloudCover);

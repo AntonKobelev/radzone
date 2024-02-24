@@ -1,3 +1,5 @@
+import React from "react";
+
 const ReactorTypeSelector = ({ onSetTypeReactor }) => {
   return (
     <div className="selector">
@@ -6,12 +8,12 @@ const ReactorTypeSelector = ({ onSetTypeReactor }) => {
         id="reactorTypeSelect"
         onChange={(e) => onSetTypeReactor(e.target.value)}
       >
-        <option value="RBMK-1000">РБМК-1000</option>
-        <option value="VVER-1000">ВВЭР-1000</option>
-        <option value="VVER-400">ВВЭР-440</option>
+        <option value="РБМК-1000">РБМК-1000</option>
+        <option value="ВВЭР-1000">ВВЭР-1000</option>
+        <option value="ВВЭР-440">ВВЭР-440</option>
       </select>
     </div>
   );
 };
 
-export default ReactorTypeSelector;
+export default React.memo(ReactorTypeSelector);

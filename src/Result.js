@@ -1,33 +1,15 @@
 import { useEffect } from "react";
-import getAtmosphericCondition from "./getAtmosphericCondition";
 
-const Result = ({
-  speedOfWind,
-  cloudCover,
-  timeOfDay,
-  isSnow,
-  onSetAthmosphericVerticalStability,
-}) => {
-  useEffect(() => {
-    const condition = getAtmosphericCondition(
-      speedOfWind,
-      cloudCover,
-      timeOfDay,
-      isSnow
-    );
-    onSetAthmosphericVerticalStability(condition);
-  }, [
-    speedOfWind,
-    cloudCover,
-    timeOfDay,
-    isSnow,
-    onSetAthmosphericVerticalStability,
-  ]); // Добавляем все зависимости);
-
+const Result = ({ children }) => {
   return (
     <div>
-      <p>Результат расчёта</p>
-      <p></p>
+      <h3>Результат расчёта:</h3>
+      <h3>{children}</h3>
+      {/* <p>
+        {!isNaN(сontaminationZoneLength)
+          ? `Длина зоны загрязнения (Lx): ${сontaminationZoneLength}  км`
+          : сontaminationZoneLength}
+      </p> */}
     </div>
   );
 };
