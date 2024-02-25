@@ -1,17 +1,27 @@
 import React from "react";
+import { nuclearPowerPlants } from "./nuclearPowerPlants";
+import getReactorsByName from "./getReactorsByName";
 
-const ReactorTypeSelector = ({ onSetTypeReactor }) => {
+const ReactorTypeSelector = ({ onSetTypeReactor, nuclearPowerPlantsName }) => {
+  const reactorOptions = getReactorsByName(
+    nuclearPowerPlantsName,
+    nuclearPowerPlants
+  );
   return (
     <div className="selector">
-      <h2>Тип энергетического блока:</h2>
-      <select
-        id="reactorTypeSelect"
-        onChange={(e) => onSetTypeReactor(e.target.value)}
-      >
-        <option value="РБМК-1000">РБМК-1000</option>
-        <option value="ВВЭР-1000">ВВЭР-1000</option>
-        <option value="ВВЭР-440">ВВЭР-440</option>
-      </select>
+      <h3>Тип энергетического блока:</h3>
+      {reactorOptions.length > 1 ? (
+        <select
+          id="reactorTypeSelect"
+          onChange={(e) => onSetTypeReactor(e.target.value)}
+        >
+          {reactorOptions.map((item) => (
+            <option value={item}>{item}</option>
+          ))}
+        </select>
+      ) : (
+        <p>{reactorOptions}</p>
+      )}
     </div>
   );
 };

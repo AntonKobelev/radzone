@@ -13,10 +13,16 @@ import { CONSTANTS } from "./constants";
 import SpeedOfWindForAtmosphericCondition from "./SpeedOfWindForAtmosphericCondition";
 import SpeedOfWindForDeterminingContaminationZoneLength from "./SpeedOfWindForDeterminingContaminationZoneLength";
 import getNeedTable from "./getNeedTable";
+import MapWithEllipse from "./MapWithEllipse";
+import NuclearPowerPlantsNameSelector from "./NuclearPowerPlantsNameSelector";
+import getReactorsByName from "./getReactorsByName";
+import { nuclearPowerPlants } from "./nuclearPowerPlants";
 const { coefficientA } = CONSTANTS;
 
 function App() {
-  const [typeReactor, setTypeReactor] = useState("РБМК-1000");
+  const [nuclearPowerPlantsName, setNuclearPowerPlantsName] =
+    useState("Балаковская АЭС");
+  const [typeReactor, setTypeReactor] = useState("ВВЭР-1000");
   const [
     speedOfWindForAtmosphericCondition,
     setSpeedOfWindForAtmosphericCondition,
@@ -35,6 +41,12 @@ function App() {
   const [contaminationZoneLength, setContaminationZoneLength] = useState(0);
   const [contaminationZoneWidth, setContaminationZoneWidth] = useState(0);
   const [areaOfContaminatedZone, setAreaOfContaminatedZone] = useState(0);
+
+  useEffect(() => {
+    setTypeReactor(
+      getReactorsByName(nuclearPowerPlantsName, nuclearPowerPlants)[0]
+    );
+  }, [nuclearPowerPlantsName]);
 
   useEffect(() => {
     setAreaOfContaminatedZone(
@@ -82,6 +94,7 @@ function App() {
     timeDoseExternalRadiation,
     speedOfWindForDeterminingContaminationZoneLength,
     atmosphericVerticalStability,
+    nuclearPowerPlantsName,
   ]);
 
   return (
@@ -90,7 +103,7 @@ function App() {
       <div className="container">
         <Title>
           Расчет степени вертикальной устойчивости атмосферы <br /> (при
-          отсутствии снежного покрова)
+          отсутствии снежного покрова):
         </Title>
         <div className="selectorBox">
           <SpeedOfWindForAtmosphericCondition
@@ -108,8 +121,17 @@ function App() {
       </div>
 
       <div className="container">
-        <div className="selectorBox twoColumns">
-          <ReactorTypeSelector onSetTypeReactor={setTypeReactor} />
+        <Title>
+          Расчет параметров зоны радиоактивного загрязнения местности:
+        </Title>
+        <div className="selectorBox">
+          <NuclearPowerPlantsNameSelector
+            onSetNuclearPowerPlantsName={setNuclearPowerPlantsName}
+          />
+          <ReactorTypeSelector
+            onSetTypeReactor={setTypeReactor}
+            nuclearPowerPlantsName={nuclearPowerPlantsName}
+          />
           <SpeedOfWindForDeterminingContaminationZoneLength
             onSetSpeedOfWindForDeterminingContaminationZoneLength={
               setSpeedOfWindForDeterminingContaminationZoneLength
@@ -130,6 +152,11 @@ function App() {
           <br />
         </Result>
       </div>
+      <MapWithEllipse
+        contaminationZoneLength={contaminationZoneLength}
+        contaminationZoneWidth={contaminationZoneWidth}
+        nuclearPowerPlantsName={nuclearPowerPlantsName}
+      />
     </div>
   );
 }
