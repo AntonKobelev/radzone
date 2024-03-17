@@ -18,39 +18,16 @@ import { transform } from "ol/proj";
 import { Point } from "ol/geom";
 import nuclearPowerPlantIcon from "./assets/radIcon.png";
 import * as turf from "@turf/turf";
-import getNewLatitude from "./getNewLatitude";
 
 // Функция для создания координат эллипса
-function createEllipse(
-  newCenter,
-  center,
-  radiusX,
-  radiusY,
-  windDirection,
-  map
-) {
+function createEllipse(center, radiusX, radiusY, windDirection, map) {
   // Создаем эллипс с помощью Turf.js
-  const options = {
-    steps: 200,
-    units: "kilometers",
-    angle: windDirection,
-    pivot: center,
-  };
-  const ellipse = turf.ellipse(
-    newCenter,
-    radiusY / 1000,
-    radiusX / 1000,
-    options
-  );
-
-  // Перемещаем эллипс на 10 километров вниз
-  // const translatedEllipse = turf.transformTranslate(ellipse, 10, 180, {
-  //   units: "kilometers",
-  // });
+  const options = { steps: 200, units: "kilometers", angle: windDirection };
+  const ellipse = turf.ellipse(center, radiusX / 1000, radiusY / 1000, options);
 
   // Получаем координаты эллипса
   const coords = ellipse.geometry.coordinates;
-  //console.log(coords);
+  console.log(coords);
 
   // Преобразуем координаты для использования в OpenLayers
   const transformedCoords = coords[0].map((coord) =>
@@ -66,7 +43,7 @@ const MapWithEllipse = ({
   nuclearPowerPlantsName,
   windDirection,
 }) => {
-  // console.log("contaminationZoneWidth", contaminationZoneWidth);
+  console.log("contaminationZoneWidth", contaminationZoneWidth);
   const mapRef = useRef();
   const [map, setMap] = useState();
 
@@ -96,15 +73,9 @@ const MapWithEllipse = ({
       nuclearPowerPlantsName,
       nuclearPowerPlants
     );
-
-    const newCenter = [
-      center[0],
-      getNewLatitude(center[1], contaminationZoneLength),
-    ];
-    // console.log(newCenter);
-    // console.log(center); // Должен выводить массив с двумя числовыми значениями
-    // console.log(contaminationZoneLength);
-    // console.log(contaminationZoneWidth);
+    console.log(center); // Должен выводить массив с двумя числовыми значениями
+    console.log(contaminationZoneLength);
+    console.log(contaminationZoneWidth);
 
     // Здесь убедитесь, что windDirection преобразуется в число, если он передается как строка
     const windDirectionValue =
@@ -112,21 +83,13 @@ const MapWithEllipse = ({
         ? parseFloat(windDirection)
         : windDirection;
 
-    let ellipseCoords;
-
-    try {
-      ellipseCoords = createEllipse(
-        newCenter,
-        center,
-        contaminationZoneLength * 1000,
-        contaminationZoneWidth * 1000,
-        windDirectionValue,
-        map
-      );
-    } catch (error) {
-      console.log(error);
-      return;
-    }
+    const ellipseCoords = createEllipse(
+      center,
+      contaminationZoneLength * 1000,
+      contaminationZoneWidth * 1000,
+      windDirectionValue,
+      map
+    );
 
     const ellipseFeature = new Feature(new Polygon([ellipseCoords]));
     const vectorLayer = new VectorLayer({

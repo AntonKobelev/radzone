@@ -17,6 +17,7 @@ import MapWithEllipse from "./MapWithEllipse";
 import NuclearPowerPlantsNameSelector from "./NuclearPowerPlantsNameSelector";
 import getReactorsByName from "./getReactorsByName";
 import { nuclearPowerPlants } from "./nuclearPowerPlants";
+import WindDirection from "./WindDirection";
 const { coefficientA } = CONSTANTS;
 
 function App() {
@@ -38,9 +39,15 @@ function App() {
   const [timeDoseExternalRadiation, setTimeDoseExternalRadiation] =
     useState("1h");
   const [doseValue, setDoseValue] = useState(0.5);
-  const [contaminationZoneLength, setContaminationZoneLength] = useState(0);
-  const [contaminationZoneWidth, setContaminationZoneWidth] = useState(0);
+  const [contaminationZoneLength, setContaminationZoneLength] = useState(10);
+  const [contaminationZoneWidth, setContaminationZoneWidth] = useState(2);
   const [areaOfContaminatedZone, setAreaOfContaminatedZone] = useState(0);
+  // Инициализация состояния для хранения выбранного направления ветра
+  const [windDirection, setWindDirection] = useState(0);
+
+  const handleWindDirectionChange = (event) => {
+    setWindDirection(event.target.value);
+  };
 
   useEffect(() => {
     setTypeReactor(
@@ -141,6 +148,10 @@ function App() {
           <TimeDoseExternalRadiation
             onSetTimeDoseExternalRadiation={setTimeDoseExternalRadiation}
           />
+          <WindDirection
+            onSetWindDirection={handleWindDirectionChange}
+            windDirection={windDirection}
+          />
         </div>
         <Result>
           Длина зоны радиоактивного загрязнения местности (Lx):{" "}
@@ -156,6 +167,7 @@ function App() {
         contaminationZoneLength={contaminationZoneLength}
         contaminationZoneWidth={contaminationZoneWidth}
         nuclearPowerPlantsName={nuclearPowerPlantsName}
+        windDirection={windDirection}
       />
     </div>
   );

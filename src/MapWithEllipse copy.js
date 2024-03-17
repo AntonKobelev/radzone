@@ -17,56 +17,38 @@ import { get as getProjection } from "ol/proj";
 import { transform } from "ol/proj";
 import { Point } from "ol/geom";
 import nuclearPowerPlantIcon from "./assets/radIcon.png";
-import * as turf from "@turf/turf";
-import getNewLatitude from "./getNewLatitude";
 
 // Функция для создания координат эллипса
-function createEllipse(
-  newCenter,
-  center,
-  radiusX,
-  radiusY,
-  windDirection,
-  map
-) {
-  // Создаем эллипс с помощью Turf.js
-  const options = {
-    steps: 200,
-    units: "kilometers",
-    angle: windDirection,
-    pivot: center,
-  };
-  const ellipse = turf.ellipse(
-    newCenter,
-    radiusY / 1000,
-    radiusX / 1000,
-    options
-  );
 
-  // Перемещаем эллипс на 10 километров вниз
-  // const translatedEllipse = turf.transformTranslate(ellipse, 10, 180, {
-  //   units: "kilometers",
-  // });
+function createEllipse(center, radiusX, radiusY, map) {
+  const points = 100;
+  const coords = [];
+  const angleStep = (Math.PI * 2) / points;
 
-  // Получаем координаты эллипса
-  const coords = ellipse.geometry.coordinates;
-  //console.log(coords);
+  // Получаем коэффициент уменьшения масштаба в зависимости от широты
+  const scale = Math.cos((center[1] * Math.PI) / 180);
 
-  // Преобразуем координаты для использования в OpenLayers
-  const transformedCoords = coords[0].map((coord) =>
-    transform(coord, "EPSG:4326", map.getView().getProjection())
-  );
+  // Смещаем центр эллипса влево на величину радиуса по оси X,
+  // чтобы правый край эллипса совпадал с указанной точкой center
+  const ellipseCenter = [center[0] - radiusX / (111319.5 * scale), center[1]];
 
-  return transformedCoords;
+  for (let i = 0; i < points; i++) {
+    const angle = i * angleStep;
+    const dx = (radiusX * Math.cos(angle)) / (111319.5 * scale);
+    const dy = (radiusY * Math.sin(angle)) / 111319.5; // Широта остается неизменной
+    const point = [ellipseCenter[0] + dx, ellipseCenter[1] + dy];
+    coords.push(transform(point, "EPSG:4326", map.getView().getProjection()));
+  }
+  coords.push(coords[0]); // Замыкание полигона
+
+  return coords;
 }
 
 const MapWithEllipse = ({
   contaminationZoneLength,
   contaminationZoneWidth,
   nuclearPowerPlantsName,
-  windDirection,
 }) => {
-  // console.log("contaminationZoneWidth", contaminationZoneWidth);
   const mapRef = useRef();
   const [map, setMap] = useState();
 
@@ -96,37 +78,13 @@ const MapWithEllipse = ({
       nuclearPowerPlantsName,
       nuclearPowerPlants
     );
-
-    const newCenter = [
-      center[0],
-      getNewLatitude(center[1], contaminationZoneLength),
-    ];
-    // console.log(newCenter);
-    // console.log(center); // Должен выводить массив с двумя числовыми значениями
-    // console.log(contaminationZoneLength);
-    // console.log(contaminationZoneWidth);
-
-    // Здесь убедитесь, что windDirection преобразуется в число, если он передается как строка
-    const windDirectionValue =
-      typeof windDirection === "string"
-        ? parseFloat(windDirection)
-        : windDirection;
-
-    let ellipseCoords;
-
-    try {
-      ellipseCoords = createEllipse(
-        newCenter,
-        center,
-        contaminationZoneLength * 1000,
-        contaminationZoneWidth * 1000,
-        windDirectionValue,
-        map
-      );
-    } catch (error) {
-      console.log(error);
-      return;
-    }
+    console.log(center); // Должен выводить массив с двумя числовыми значениями
+    const ellipseCoords = createEllipse(
+      center,
+      contaminationZoneLength * 1000,
+      contaminationZoneWidth * 1000,
+      map
+    );
 
     const ellipseFeature = new Feature(new Polygon([ellipseCoords]));
     const vectorLayer = new VectorLayer({
@@ -175,7 +133,6 @@ const MapWithEllipse = ({
     nuclearPowerPlantsName,
     contaminationZoneLength,
     contaminationZoneWidth,
-    windDirection,
   ]);
 
   return <div ref={mapRef} style={{ width: "100%", height: "400px" }}></div>;
